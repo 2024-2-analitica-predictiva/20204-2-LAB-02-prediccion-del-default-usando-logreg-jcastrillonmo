@@ -94,48 +94,23 @@
 # {'type': 'cm_matrix', 'dataset': 'train', 'true_0': {"predicted_0": 15562, "predicte_1": 666}, 'true_1': {"predicted_0": 3333, "predicted_1": 1444}}
 # {'type': 'cm_matrix', 'dataset': 'test', 'true_0': {"predicted_0": 15562, "predicte_1": 650}, 'true_1': {"predicted_0": 2490, "predicted_1": 1420}}
 #
-# %%
-#Paso 1.
-# Realice la limpieza de los datasets:
-# - Renombre la columna "default payment next month" a "default".
-# - Remueva la columna "ID".
-# - Elimine los registros con informacion no disponible.
-# - Para la columna EDUCATION, valores > 4 indican niveles superiores
-#   de educación, agrupe estos valores en la categoría "others".
-#
-# Renombre la columna "default payment next month" a "default"
-# y remueva la columna "ID".
-
-# %%
-#Paso 1.
-# Realice la limpieza de los datasets:
-# - Renombre la columna "default payment next month" a "default".
-# - Remueva la columna "ID".
-# - Elimine los registros con informacion no disponible.
-# - Para la columna EDUCATION, valores > 4 indican niveles superiores
-#   de educación, agrupe estos valores en la categoría "others".
-#
-# Renombre la columna "default payment next month" a "default"
-# y remueva la columna "ID".
 
 import pandas as pd
 
 
 #importo test
 test_data = pd.read_csv(
-    "../files/input/test_data.csv.zip",
+    "C:\\Users\\Usuario\\Documents\\Maestria Nacional\\1.Semestre\\3.Predictiva\\Laboratorio1\\20204-2-LAB-02-prediccion-del-default-usando-logreg-jcastrillonmo\\files\\input\\test_data.csv.zip",
     index_col=False,
     compression="zip",
 )
 # importo train
 train_data = pd.read_csv(
-    "../files/input/train_data.csv.zip",
+    "C:\\Users\\Usuario\\Documents\\Maestria Nacional\\1.Semestre\\3.Predictiva\\Laboratorio1\\20204-2-LAB-02-prediccion-del-default-usando-logreg-jcastrillonmo\\files\\input\\train_data.csv.zip",
     index_col=False,
     compression="zip",
 )
 
-
-# %%
 # - Renombre la columna "default payment next month" a "default".
 
 test_data = test_data.rename(columns={'default payment next month': 'default'})
@@ -147,7 +122,6 @@ train_data = train_data.rename(columns={'default payment next month': 'default'}
 test_data=test_data.drop(columns=['ID'])
 train_data=train_data.drop(columns=['ID'])
 
-# %%
 # - Elimine los registros con informacion no disponible.
 
 import numpy as np
@@ -164,7 +138,6 @@ test_data = test_data.loc[test_data["EDUCATION"] != 0]
 #print(test_data["EDUCATION"].value_counts())
 #print(test_data["MARRIAGE"].value_counts())
 
-# %%
 # - Para la columna EDUCATION, valores > 4 indican niveles superiores
 test_data['EDUCATION'] = test_data['EDUCATION'].apply(lambda x: 4 if x > 4 else x)
 train_data['EDUCATION'] = train_data['EDUCATION'].apply(lambda x: 4 if x > 4 else x)
@@ -172,8 +145,6 @@ train_data['EDUCATION'] = train_data['EDUCATION'].apply(lambda x: 4 if x > 4 els
 #print(train_data["EDUCATION"].value_counts())
 #print(test_data["EDUCATION"].value_counts())
 
-
-# %%
 #Paso 2
 # Divida los datasets en x_train, y_train, x_test, y_test.
 x_train=train_data.drop(columns="default")
@@ -183,8 +154,6 @@ y_train=train_data["default"]
 x_test=test_data.drop(columns="default")
 y_test=test_data["default"]
 
-
-# %%
 # Paso 3.
 # Cree un pipeline para el modelo de clasificación. Este pipeline debe
 # contener las siguientes capas:
@@ -218,7 +187,6 @@ preprocessor = ColumnTransformer(
 # Preprocesamiento para variables numéricas: Escalado al intervalo [0, 1]
 numerical_preprocessor = MinMaxScaler()
 
-# %%
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 
@@ -237,9 +205,6 @@ pipeline_lr = Pipeline(steps=[
     ("classifier", LogisticRegression(max_iter=1000))  # Modelo final
 ])
 
-
-
-# %%
 # Definir la rejilla de parámetros
 param_grid = {
     "feature_selection__k": range(1, len(x_train.columns) + 1),
@@ -256,51 +221,35 @@ model = GridSearchCV(
     verbose=1
 )
 
-
-# %%
 # Ajustar el modelo con el conjunto de entrenamiento
 model.fit(x_train, y_train)
 
-# %%
 # Obtener los mejores parámetros y puntuación
 best_params = model.best_params_
 best_score = model.best_score_
 
-# %%
 # Mostrar resultados
 print("Mejores hiperparámetros encontrados:")
 print(best_params)
 print(f"Mejor puntuación (accuracy): {best_score:.4f}")
 
-# %%
 # Evaluar el mejor modelo en el conjunto de prueba
 best_model = model.best_estimator_
 test_accuracy = best_model.score(x_test, y_test)
 print(f"Exactitud en el conjunto de prueba: {test_accuracy:.4f}")
 
-
-# %%
-# Paso 4.
-# Optimice los hiperparametros del pipeline usando validación cruzada.
-# Use 10 splits para la validación cruzada. Use la función de precision
-# balanceada para medir la precisión del modelo.
-
-# %%
 # Paso 5.
 # Salve el modelo como "files/models/model.pkl".
 
 import pickle
 import os
 
-models_dir = '../files/models'
+models_dir = 'files/models'
 os.makedirs(models_dir, exist_ok=True)
 
-with open("../files/models/model.pkl","wb") as file:
+with open("files/models/model.pkl","wb") as file:
     pickle.dump(model,file)
 
-
-
-# %%
 # Paso 6.
 # Calcule las metricas de precision, precision balanceada, recall,
 # y f1-score para los conjuntos de entrenamiento y prueba.
@@ -342,7 +291,7 @@ def calculate_and_save_metrics(model, x_train, x_test, y_train, y_test):
     }
 
     # Crear carpeta si no existe
-    output_dir = '../files/output'
+    output_dir = 'files/output'
     os.makedirs(output_dir, exist_ok=True)
 
     # Guardar las métricas en un archivo JSON
@@ -351,7 +300,6 @@ def calculate_and_save_metrics(model, x_train, x_test, y_train, y_test):
         f.write(json.dumps(metrics_train) + '\n')
         f.write(json.dumps(metrics_test) + '\n')
 
-# %%
 # Paso 7.
 # Calcule las matrices de confusion para los conjuntos de entrenamiento y
 # prueba. Guardelas en el archivo files/output/metrics.json. Cada fila
@@ -394,7 +342,7 @@ def calculate_and_save_confusion_matrices(model, x_train, x_test, y_train, y_tes
     ]
 
     # Guardar las matrices de confusión en el mismo archivo JSON
-    output_path = '../files/output/metrics.json'
+    output_path = 'files/output/metrics.json'
     with open(output_path, 'a') as f:  # Usar 'a' para agregar después de las métricas
         for metric in metrics:
             f.write(json.dumps(metric) + '\n')
@@ -403,7 +351,7 @@ def calculate_and_save_confusion_matrices(model, x_train, x_test, y_train, y_tes
 def main(model, x_train, x_test, y_train, y_test):
     # Crear el directorio de salida si no existe
     import os
-    os.makedirs('../files/output', exist_ok=True)
+    os.makedirs('files/output', exist_ok=True)
 
     # Calcular y guardar las métricas
     calculate_and_save_metrics(model, x_train, x_test, y_train, y_test)
